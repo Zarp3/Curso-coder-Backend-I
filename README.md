@@ -39,14 +39,10 @@ Los archivos products.json y carts.json deben comenzar vacíos:
 📍 GET /
 
 Obtiene todos los productos.
-Ejemplo:
-GET http://localhost:8080/api/products
 
 📍 GET /
 
 Obtiene un producto específico por su ID.
-Ejemplo:
-GET http://localhost:8080/api/products/1
 
 📍 POST /
 
