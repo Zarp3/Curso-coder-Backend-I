@@ -17,11 +17,29 @@ router.get("/:cid", async (req, res) => {
 });
 
 router.post("/:cid/product/:pid", async (req, res) => {
-  const cid = Number(req.params.cid);
-  const pid = Number(req.params.pid);
-  const updated = await manager.addProductToCart(cid, pid);
-  if (!updated) return res.status(404).json({ error: "Carrito no encontrado" });
-  res.json(updated);
+    try {
+        const { cid, pid } = req.params;
+
+        const product = await productManager.getProductById(pid);
+
+        if (!product) {
+            return res.status(404).send({ error: "El producto no existe" });
+        }
+
+        if (product.stock <= 0) {
+            return res.status(400).send({ error: "Sin stock disponible" });
+        }
+
+        await cartManager.addProductToCart(cid, pid);
+        product.stock--;
+
+        await productManager.updateProduct(pid, product);
+
+        res.send({ message: "Producto agregado al carrito" });
+
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
 });
 
 export default router;

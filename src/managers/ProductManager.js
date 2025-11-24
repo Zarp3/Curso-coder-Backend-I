@@ -19,12 +19,23 @@ export default class ProductManager {
   }
 
   async addProduct(product) {
-    const products = await this.getProducts();
-    const id = products.length ? products[products.length - 1].id + 1 : 1;
-    const newProduct = { id, ...product };
-    products.push(newProduct);
-    await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
-    return newProduct;
+    try {
+        const products = await this.getProducts();
+
+        if (!product.title || !product.price) {
+            throw new Error("Faltan campos obligatorios");
+        }
+
+        product.id = Date.now();
+        product.stock = product.stock ?? 10; 
+        products.push(product);
+
+        await this.saveProducts(products);
+        return product;
+
+    } catch (error) {
+        throw new Error("Error al agregar producto: " + error.message);
+    }
   }
 
   async updateProduct(id, updateData) {
@@ -37,8 +48,18 @@ export default class ProductManager {
   }
 
   async deleteProduct(id) {
-    const products = await this.getProducts();
-    const filtered = products.filter(p => p.id !== id);
-    await fs.promises.writeFile(this.path, JSON.stringify(filtered, null, 2));
-  }
-}
+    try {
+        const products = await this.getProducts();
+        const index = products.findIndex(p => p.id == id);
+
+        if (index === -1) {
+            throw new Error("El producto no existe");
+        }
+
+        products.splice(index, 1);
+        await this.saveProducts(products);
+
+    } catch (error) {
+        throw new Error("Error al eliminar producto: " + error.message);
+    }
+  } }

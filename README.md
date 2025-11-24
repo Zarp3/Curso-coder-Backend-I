@@ -1,129 +1,93 @@
-🧾 Entrega N°1 – API de Productos y Carritos
+📘 ENTREGA TRABAJO N°2 DE JUAN CRUZ QUIROGA – Products, Carts, Handlebars & WebSockets
+🚀 Descripción General
 
-Este proyecto implementa un servidor en Node.js + Express que permite gestionar productos y carritos de compra utilizando archivos JSON para la persistencia de datos.
+Proyecto backend desarrollado con Node.js, Express, File System, Handlebars y Socket.io, que implementa gestión de productos, carritos y una vista de actualización en tiempo real.
 
-🚀 Instalación y ejecución
-
-Clonar o descargar el proyecto.
-
-Abrir la carpeta del proyecto en la terminal.
-
-Instalar dependencias:
-
+▶️ Cómo iniciar el proyecto
 npm install
-
-Ejecutar el servidor:
-
 npm start
 
-El servidor se ejecutará en:
+Servidor en http://localhost:8080
 
-http://localhost:8080
-📁 Estructura del proyecto
-src/
-├── app.js
-├── routes/
-│   ├── products.router.js
-│   └── carts.router.js
-├── managers/
-│   ├── ProductManager.js
-│   └── CartManager.js
-└── data/
-    ├── products.json
-    └── carts.json
+📁 Estructura básica
 
-Los archivos products.json y carts.json deben comenzar vacíos:
+/api/products → CRUD de productos
 
-[]
-📦 Rutas de Productos (/api/products)
-📍 GET /
+/api/carts → Gestión de carritos
 
-Obtiene todos los productos.
-Ejemplo:
-GET http://localhost:8080/api/products
+/views → Vistas Handlebars
 
-📍 GET /
+/public/js → Lógica de WebSockets
 
-Obtiene un producto específico por su ID.
-Ejemplo:
-GET http://localhost:8080/api/products/1
+/data → Persistencia en JSON
 
-📍 POST /
+/managers → ProductManager y CartManager
 
-Agrega un nuevo producto.
-El id se genera automáticamente.
-Body (JSON):
+🛒 Rutas de Productos (/api/products)
 
-{
-  "title": "Remera",
-  "description": "Remera negra oversize",
-  "code": "R001",
-  "price": 2500,
-  "status": true,
-  "stock": 15,
-  "category": "Ropa",
-  "thumbnails": []
-}
+GET / → Listar productos
 
-📄 El nuevo producto se guarda automáticamente dentro de products.json.
+GET /:pid → Producto por ID
 
-📍 PUT /
+POST / → Crear producto (ID autogenerado + validación completa)
 
-Actualiza un producto existente (excepto el id).
-Ejemplo:
-PUT http://localhost:8080/api/products/1
-Body:
+PUT /:pid → Actualizar sin modificar ID
 
-{
-  "price": 2800,
-  "stock": 20
-}
-📍 DELETE /
+DELETE /:pid → Eliminar producto
 
-Elimina un producto por ID.
-Ejemplo:
-DELETE http://localhost:8080/api/products/1
+Incluye validaciones:
 
-🛒 Rutas de Carritos (/api/carts)
-📍 POST /
+Campos obligatorios
 
-Crea un nuevo carrito.
-El id se genera automáticamente.
-Ejemplo:
-POST http://localhost:8080/api/carts
-Respuesta:
+Código único
 
-{
-  "id": 1,
-  "products": []
-}
+Manejo de errores
 
-📄 El carrito se guarda en carts.json.
+🛍️ Rutas de Carritos (/api/carts)
 
-📍 GET /
+POST / → Crear carrito
 
-Obtiene todos los productos de un carrito específico.
-Ejemplo:
-GET http://localhost:8080/api/carts/1
+GET /:cid → Ver productos del carrito
 
-📍 POST //product/
+POST /:cid/product/:pid → Agregar producto
 
-Agrega un producto a un carrito.
+Si existe: aumenta quantity
 
-Si el producto no existe en el carrito, se agrega con quantity: 1.
+Si no existe: se agrega
 
-Si ya existe, se incrementa la cantidad.
-Ejemplo:
-POST http://localhost:8080/api/carts/1/product/2
+Valida existencia del producto y stock
 
-📄 Esto actualizará el carrito con ese producto dentro del archivo carts.json.
+🎨 Vistas con Handlebars
 
-💾 Persistencia de datos
+/home → Lista completa de productos
 
-Los datos se guardan automáticamente en archivos JSON:
+/realtimeproducts → Vista que actualiza productos en tiempo real
 
-src/data/products.json → almacena todos los productos.
+⚡ Funcionalidad WebSockets
 
-src/data/carts.json → almacena los carritos creados.
+Implementada con Socket.io.
+Cada vez que se crea o elimina un producto:
 
-Cada vez que se realiza un POST, PUT o DELETE, el archivo se actualiza.
+✔ La vista realTimeProducts se actualiza automáticamente sin recargar.
+✔ Comunicación mediante eventos: productAdded y productDeleted.
+
+📄 .gitignore
+
+Incluye:
+
+node_modules/
+.env
+
+✔ Cumplimiento de Consigna
+
+Ruteo con Express
+
+Persistencia en JSON
+
+Manejo de errores y validaciones
+
+Handlebars configurado
+
+WebSockets funcionales
+
+Vistas dinámicas actualizadas en tiempo real
