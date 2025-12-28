@@ -1,27 +1,64 @@
 import { Router } from "express";
-import CartManager from "../managers/CartManager.js";
+import Cart from "../models/cart.model.js";
 
 const router = Router();
-const manager = new CartManager();
 
-router.post("/", async (req, res) => {
-  const cart = await manager.createCart();
-  res.status(201).json(cart);
-});
 
 router.get("/:cid", async (req, res) => {
-  const id = Number(req.params.cid);
-  const cart = await manager.getCartById(id);
-  if (!cart) return res.status(404).json({ error: "Carrito no encontrado" });
-  res.json(cart.products);
+  const cart = await Cart.findById(req.params.cid).populate("products.product");
+  res.json(cart);
 });
 
-router.post("/:cid/product/:pid", async (req, res) => {
-  const cid = Number(req.params.cid);
-  const pid = Number(req.params.pid);
-  const updated = await manager.addProductToCart(cid, pid);
-  if (!updated) return res.status(404).json({ error: "Carrito no encontrado" });
-  res.json(updated);
+router.post("/:cid/products/:pid", async (req, res) => {
+  const cart = await CartModel.findById(req.params.cid);
+
+  const prodIndex = cart.products.findIndex(
+    p => p.product.toString() === req.params.pid
+  );
+
+  if (prodIndex !== -1) {
+    cart.products[prodIndex].quantity++;
+  } else {
+    cart.products.push({ product: req.params.pid, quantity: 1 });
+  }
+
+  await cart.save();
+  res.json(cart);
+});
+
+
+router.delete("/:cid/products/:pid", async (req, res) => {
+  await Cart.findByIdAndUpdate(req.params.cid, {
+    $pull: { products: { product: req.params.pid } }
+  });
+  res.json({ status: "success" });
+});
+
+
+router.put("/:cid", async (req, res) => {
+  await Cart.findByIdAndUpdate(req.params.cid, {
+    products: req.body
+  });
+  res.json({ status: "success" });
+});
+
+
+router.put("/:cid/products/:pid", async (req, res) => {
+  const { quantity } = req.body;
+
+  await Cart.updateOne(
+    { _id: req.params.cid, "products.product": req.params.pid },
+    { $set: { "products.$.quantity": quantity } }
+  );
+
+  res.json({ status: "success" });
+});
+
+
+router.delete("/:cid", async (req, res) => {
+  await Cart.findByIdAndUpdate(req.params.cid, { products: [] });
+  res.json({ status: "success" });
 });
 
 export default router;
+
